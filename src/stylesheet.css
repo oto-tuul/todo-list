@@ -1,0 +1,29 @@
+#header {
+    border: 1px solid black;
+}
+
+#projectBar {
+    margin: 5px;
+}
+
+.projectTab {
+    text-decoration: none;
+    color: black;
+    border: 1px solid black;
+    padding: 5px;
+    margin: 0px;
+}
+
+.projectTab button {
+    border: 1px solid black;
+    padding: 0px 5px;
+    margin: 2px;
+}
+
+#listContainer {
+    border: 1px solid black; 
+}
+
+.listItem {
+    border: 1px solid black;
+}
