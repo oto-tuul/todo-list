@@ -1,4 +1,5 @@
 import {format} from 'date-fns';
+import {projectList} from './persistentProjects';
 
 const editTodo = {
     toggleCheck() {
@@ -24,13 +25,15 @@ const editTodo = {
     },
 };
 
-const createTodo = function createTodo(check, title, description, day, month, year, priority) {
+const createTodo = function createTodo(projectName, check, title, description, day, month, year, priority) {
     let todo = Object.create(editTodo);
     todo.check = check;
     todo.title = title;
     todo.description = description;
     todo.dueDate = format(new Date(year, month, day), 'dd/MM/yyyy');
     todo.priority = priority;
+    projectList[projectName].push(todo);
+    console.log(projectList);
     return todo;
 };
 
