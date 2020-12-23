@@ -27,17 +27,12 @@ content.appendChild(listContainer);
 
 createProjectTab('Example project');
 
-createTodo('Example project',false, 'Title goes here', 'Descritption goes here', 1, 0, 2021, 1);
+createTodo('Example project',false, 'Title goes here', 'Description goes here', 1, 0, 2021, 1);
 
-let defaultItem = document.createElement('p');
-defaultItem.classList.add('listItem');
-defaultItem.innerHTML = `${projectList['Example project'][0].check} ${projectList['Example project'][0].title} ${projectList['Example project'][0].description} ${projectList['Example project'][0].dueDate} ${projectList['Example project'][0].priority}`;
+populateList('Example project');
+
+
 let newItemBtn = document.createElement('button');
 newItemBtn.id = 'newItemBtn';
 newItemBtn.innerHTML = '+ Add task';
-
-listContainer.appendChild(defaultItem);
-listContainer.appendChild(newItemBtn);
-
-return newItemBtn;
 };

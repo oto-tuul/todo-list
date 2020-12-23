@@ -1,6 +1,6 @@
 import {createProject, projectList} from './persistentProjects'
 import createTodo from './todoFactory';
-export {newProject, createProjectTab, populateList, newTodo};
+export {newProject, createProjectTab, populateList, newTodo, displayItemDetails};
 
 var activeProjectName;
 
@@ -58,9 +58,7 @@ let createProjectTab = function createProjectTab(name) {
 
     projectTab.addEventListener('click', () => {
         populateList(name);
-        console.log(activeProjectName);
         activeProjectName = projectTab.id;
-        console.log(activeProjectName)
     });
 };
 
@@ -70,10 +68,42 @@ let populateList = function populateList (projectKey) {
     };
 
     projectList[projectKey].forEach(element => {
-        let defaultItem = document.createElement('p');
-        defaultItem.classList.add('listItem');
-        defaultItem.innerHTML = `${element.check} ${element.title} ${element.description} ${element.dueDate} ${element.priority}`;
-        listContainer.appendChild(defaultItem);
+        let listItem = document.createElement('p');
+        listItem.classList.add('listItem');
+        listItem.innerHTML = `${element.check} ${element.title} ${element.dueDate}`;
+        listContainer.appendChild(listItem);
+
+        let removeItemBtn = document.createElement('button');
+        removeItemBtn.classList.add('removeItemBtn');
+        removeItemBtn.innerHTML = 'x';
+        listItem.appendChild(removeItemBtn);
+
+        removeItemBtn.addEventListener('click', () => {
+            console.log(projectList)
+            console.log(projectList[projectKey])
+            let index = projectList[projectKey].findIndex(x => x.title === element.title)
+            if (index > -1) {
+                projectList[projectKey].splice(index, 1);
+            };
+            listContainer.removeChild(listItem);
+        });
+
+        listItem.addEventListener('click', function displayDetails() { 
+            displayItemDetails(listItem, element);
+
+            let itemChildren = listItem.childNodes;
+            for(let i=0; i < itemChildren.length; i++) {
+                itemChildren[i].addEventListener('click', (e) => {
+                    if (itemChildren[i] !== e.target) return;
+                    let fieldPlaceholder = itemChildren[i].childNodes[0].nodeValue;
+                    let elementField = document.createElement('input');
+                    elementField.placeholder = `$fieldPlaceholder}`;
+                    itemChildren[i].replaceWith(elementField);
+                    e.stopPropagation();
+                });
+            };
+        listItem.removeEventListener('click', displayDetails);
+        });
     });
 
     let newItemBtn = document.createElement('button');
@@ -155,7 +185,43 @@ let newTodo = function newTodo() {
     document.getElementById('newItemBtnF').addEventListener('click', () => {
     console.log(activeProjectName);
     createTodo(`${activeProjectName}`, false, titleField.value, descriptionField.value, dayField.value, monthField.value, yearField.value, document.querySelector('input[name="priority"]:checked').value);
+    console.log(projectList);
     populateList(`${activeProjectName}`);
     });
     
+};
+
+let displayItemDetails = function displayItemDetails(DOMItem, fromItem) {
+    DOMItem.innerHTML = '';
+        
+    let itemCheck = document.createElement('p');
+    itemCheck.id = 'itemCheck';
+    itemCheck.innerHTML = `${fromItem.check}`;
+    DOMItem.appendChild(itemCheck);
+
+    let itemTitle = document.createElement('p');
+    itemTitle.id = 'itemTitle';
+    itemTitle.innerHTML = `${fromItem.title}`;
+    DOMItem.appendChild(itemTitle);
+
+    let removeItemBtn = document.createElement('button');
+    removeItemBtn.classList.add('removeItemBtn');
+    removeItemBtn.innerHTML = 'x';
+    itemTitle.appendChild(removeItemBtn);
+
+    let itemDescription = document.createElement('p');
+    itemDescription.id = 'itemDescription';
+    itemDescription.innerHTML = `${fromItem.description}`;
+    DOMItem.appendChild(itemDescription);
+
+    let itemDate = document.createElement('p');
+    itemDate.id = 'itemDate';
+    itemDate.innerHTML = `${fromItem.dueDate}`;
+    DOMItem.appendChild(itemDate);
+
+    let itemPriority = document.createElement('p');
+    itemPriority.id = 'itemPriority';
+    itemPriority.innerHTML = `${fromItem.priority}`;
+    DOMItem.appendChild(itemPriority);
+
 };
