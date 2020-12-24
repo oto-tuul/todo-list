@@ -78,14 +78,16 @@ let populateList = function populateList (projectKey) {
         removeItemBtn.innerHTML = 'x';
         listItem.appendChild(removeItemBtn);
 
-        removeItemBtn.addEventListener('click', () => {
-            console.log(projectList)
-            console.log(projectList[projectKey])
+        let removeItem = function removeItem() {
             let index = projectList[projectKey].findIndex(x => x.title === element.title)
             if (index > -1) {
                 projectList[projectKey].splice(index, 1);
             };
             listContainer.removeChild(listItem);
+        };
+
+        removeItemBtn.addEventListener('click', () => {
+            removeItem();
         });
 
         listItem.addEventListener('click', function displayDetails() { 
@@ -97,13 +99,28 @@ let populateList = function populateList (projectKey) {
                     if (itemChildren[i] !== e.target) return;
                     let fieldPlaceholder = itemChildren[i].childNodes[0].nodeValue;
                     let elementField = document.createElement('input');
-                    elementField.placeholder = `$fieldPlaceholder}`;
+                    elementField.placeholder = `${fieldPlaceholder}`;
+                    elementField.attributeRef = itemChildren[i].attributeRef;
                     itemChildren[i].replaceWith(elementField);
                     e.stopPropagation();
+
+                    itemChildren[i].addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter') {
+                            let insAttribute = itemChildren[i].attributeRef;
+                            let insNewValue = elementField.value;
+                            element.editAttribute(insAttribute, insNewValue);
+                            console.log(element);
+                            displayDetails();
+                        };
+                    });
                 });
             };
         listItem.removeEventListener('click', displayDetails);
+        listItem.addEventListener('click', () => {
+            populateList(projectKey);
         });
+        });
+        
     });
 
     let newItemBtn = document.createElement('button');
@@ -185,7 +202,6 @@ let newTodo = function newTodo() {
     document.getElementById('newItemBtnF').addEventListener('click', () => {
     console.log(activeProjectName);
     createTodo(`${activeProjectName}`, false, titleField.value, descriptionField.value, dayField.value, monthField.value, yearField.value, document.querySelector('input[name="priority"]:checked').value);
-    console.log(projectList);
     populateList(`${activeProjectName}`);
     });
     
@@ -193,34 +209,35 @@ let newTodo = function newTodo() {
 
 let displayItemDetails = function displayItemDetails(DOMItem, fromItem) {
     DOMItem.innerHTML = '';
+    let keyNames = Object.keys(fromItem);
         
     let itemCheck = document.createElement('p');
     itemCheck.id = 'itemCheck';
+    itemCheck.attributeRef = keyNames[0];
     itemCheck.innerHTML = `${fromItem.check}`;
     DOMItem.appendChild(itemCheck);
 
     let itemTitle = document.createElement('p');
     itemTitle.id = 'itemTitle';
+    itemTitle.attributeRef = keyNames[1];
     itemTitle.innerHTML = `${fromItem.title}`;
     DOMItem.appendChild(itemTitle);
 
-    let removeItemBtn = document.createElement('button');
-    removeItemBtn.classList.add('removeItemBtn');
-    removeItemBtn.innerHTML = 'x';
-    itemTitle.appendChild(removeItemBtn);
-
     let itemDescription = document.createElement('p');
     itemDescription.id = 'itemDescription';
+    itemDescription.attributeRef = keyNames[2];
     itemDescription.innerHTML = `${fromItem.description}`;
     DOMItem.appendChild(itemDescription);
 
     let itemDate = document.createElement('p');
     itemDate.id = 'itemDate';
+    itemDate.attributeRef = keyNames[3];
     itemDate.innerHTML = `${fromItem.dueDate}`;
     DOMItem.appendChild(itemDate);
 
     let itemPriority = document.createElement('p');
     itemPriority.id = 'itemPriority';
+    itemPriority.attributeRef = keyNames[4];
     itemPriority.innerHTML = `${fromItem.priority}`;
     DOMItem.appendChild(itemPriority);
 

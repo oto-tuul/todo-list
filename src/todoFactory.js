@@ -2,27 +2,9 @@ import {format} from 'date-fns';
 import {projectList} from './persistentProjects';
 
 const editTodo = {
-    toggleCheck() {
-        this.check = !this.check;
-    },
-    editTitle(title) {
-        this.title = title;
-    },
-    editDescription(description) {
-        this.description = description;
-    },
-    editDueDate(dueDate) {
-        this.dueDate = dueDate;
-    },
-    togglePriority() {
-        if (this.priority === 1) {
-            this.priority = 2;
-        } else if (this.priority === 2) {
-            this.priority = 3;
-        } else if (this.priority === 3) {
-            this.priority = 1;
-        }
-    },
+    editAttribute(attribute, newValue) {
+        this[attribute] = newValue;
+    }
 };
 
 const createTodo = function createTodo(projectName, check, title, description, day, month, year, priority) {
