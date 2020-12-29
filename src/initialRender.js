@@ -1,6 +1,6 @@
 import createTodo from './todoFactory';
-import {createProject, projectList} from './persistentProjects';
-import {newProject, createProjectTab, populateList, newTodo} from './domModification';
+import {createProject, saveProjectList, loadProjectList, projectList} from './persistentProjects';
+import {newProject, createProjectTab, populateProjectBar, populateList, newTodo} from './domModification';
 export {init}
 
 
@@ -19,20 +19,28 @@ let projectBar = document.createElement('div');
 projectBar.id = 'projectBar';
 content.appendChild(projectBar);
 
-createProject('Example project');
-
 let listContainer = document.createElement('div');
 listContainer.id = 'listContainer';
 content.appendChild(listContainer);
 
+if (JSON.parse(localStorage.getItem('projectList')) !== null) {
+    loadProjectList();
+    populateProjectBar();
+    populateList('Example project');
+    return;
+};
+
+createProject('Example project');
 createProjectTab('Example project');
 
-createTodo('Example project',false, 'Title goes here', 'Description goes here', 1, 0, 2021, 1);
+createTodo('Example project',false, 'Title goes here', 'Description goes here', 1, 0, 2021, '1');
+
+saveProjectList();
 
 populateList('Example project');
 
+document.getElementById('Example project').addEventListener('click', () => {
+    populateList('Example project');
+});
 
-let newItemBtn = document.createElement('button');
-newItemBtn.id = 'newItemBtn';
-newItemBtn.innerHTML = '+ Add task';
 };

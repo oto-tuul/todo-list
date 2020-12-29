@@ -1,5 +1,5 @@
 import {format} from 'date-fns';
-import {projectList} from './persistentProjects';
+import {projectList, saveProjectList} from './persistentProjects';
 
 const editTodo = {
     editAttribute(attribute, newValue) {
@@ -16,6 +16,7 @@ const createTodo = function createTodo(projectName, check, title, description, d
     todo.priority = priority;
     projectList[projectName].push(todo);
     console.log(projectList);
+    saveProjectList();
     return todo;
 };
 

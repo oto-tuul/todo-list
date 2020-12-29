@@ -1,6 +1,6 @@
-import {createProject, projectList} from './persistentProjects'
+import {createProject, saveProjectList, projectList, loadProjectList} from './persistentProjects'
 import createTodo from './todoFactory';
-export {newProject, createProjectTab, populateList, newTodo, displayItemDetails};
+export {newProject, createProjectTab,populateProjectBar, populateList, newTodo, displayItemDetails};
 
 var activeProjectName;
 
@@ -37,10 +37,10 @@ let createProjectTab = function createProjectTab(name) {
     projectTab.appendChild(removeProjectBtn);
     projectBar.appendChild(projectTab);
 
-    let newProjectBtn = document.createElement('button');
-    newProjectBtn.id = 'newProjectBtn';
-    newProjectBtn.innerHTML = '+';
-    projectBar.appendChild(newProjectBtn);
+    // let newProjectBtn = document.createElement('button');
+    // newProjectBtn.id = 'newProjectBtn';
+    // newProjectBtn.innerHTML = '+';
+    // projectBar.appendChild(newProjectBtn);
 
     activeProjectName = projectTab.id;
 
@@ -52,13 +52,33 @@ let createProjectTab = function createProjectTab(name) {
         event.stopPropagation();
     });
 
-    document.getElementById('newProjectBtn').addEventListener('click', () => {
-        newProject()
-    });
+    // document.getElementById('newProjectBtn').addEventListener('click', () => {
+    //     newProject()
+    // });
 
     projectTab.addEventListener('click', () => {
         populateList(name);
         activeProjectName = projectTab.id;
+    });
+};
+
+let populateProjectBar = function populateProjectBar() {
+    loadProjectList();
+    while (projectBar.firstChild) {
+        projectBar.removeChild(projectBar.firstChild);
+    };
+
+    Object.keys(projectList).forEach(element => {
+        createProjectTab(`${element}`);
+    });
+
+    let newProjectBtn = document.createElement('button');
+    newProjectBtn.id = 'newProjectBtn';
+    newProjectBtn.innerHTML = '+';
+    projectBar.appendChild(newProjectBtn);
+    
+    document.getElementById('newProjectBtn').addEventListener('click', () => {
+        newProject()
     });
 };
 
@@ -68,9 +88,22 @@ let populateList = function populateList (projectKey) {
     };
 
     projectList[projectKey].forEach(element => {
-        let listItem = document.createElement('p');
+        let listItem = document.createElement('div');
         listItem.classList.add('listItem');
-        listItem.innerHTML = `${element.check} ${element.title} ${element.dueDate}`;
+
+        let itemCheck = document.createElement('p');
+        itemCheck.classList.add('itemCheck');
+        itemCheck.innerHTML = ' ';
+        if (element.check == true) {
+            itemCheck.innerHTML = '✓';
+            listItem.classList.add('doneItem');
+        };
+        listItem.appendChild(itemCheck);
+
+        let itemText = document.createElement('p');
+        itemText.classList.add('itemText');
+        itemText.innerHTML = `${element.title} ${element.dueDate}`;
+        listItem.appendChild(itemText);
         listContainer.appendChild(listItem);
 
         let removeItemBtn = document.createElement('button');
@@ -78,10 +111,27 @@ let populateList = function populateList (projectKey) {
         removeItemBtn.innerHTML = 'x';
         listItem.appendChild(removeItemBtn);
 
+        itemCheck.addEventListener('click', () => {
+            if (element.check == false) {
+                element.check = true;
+                itemCheck.innerHTML = '✓';
+                console.log(element);
+                saveProjectList();
+                listItem.classList.add('doneItem');
+            } else {
+                element.check = false;
+                itemCheck.innerHTML = ' ';
+                console.log(element);
+                saveProjectList();
+                listItem.classList.remove('doneItem');
+            }
+        });
+
         let removeItem = function removeItem() {
             let index = projectList[projectKey].findIndex(x => x.title === element.title)
             if (index > -1) {
                 projectList[projectKey].splice(index, 1);
+                saveProjectList();
             };
             listContainer.removeChild(listItem);
         };
@@ -90,13 +140,14 @@ let populateList = function populateList (projectKey) {
             removeItem();
         });
 
-        listItem.addEventListener('click', function displayDetails() { 
+        let displayDetails = () => {
             displayItemDetails(listItem, element);
 
             let itemChildren = listItem.childNodes;
-            for(let i=0; i < itemChildren.length; i++) {
+            for (let i = 0; i < itemChildren.length; i++) {
                 itemChildren[i].addEventListener('click', (e) => {
-                    if (itemChildren[i] !== e.target) return;
+                    if (itemChildren[i] !== e.target)
+                        return;
                     let fieldPlaceholder = itemChildren[i].childNodes[0].nodeValue;
                     let elementField = document.createElement('input');
                     elementField.placeholder = `${fieldPlaceholder}`;
@@ -108,17 +159,36 @@ let populateList = function populateList (projectKey) {
                         if (e.key === 'Enter') {
                             let insAttribute = itemChildren[i].attributeRef;
                             let insNewValue = elementField.value;
-                            element.editAttribute(insAttribute, insNewValue);
+                            element[insAttribute] = insNewValue;
+                            saveProjectList();
                             console.log(element);
                             displayDetails();
                         };
                     });
                 });
             };
-        listItem.removeEventListener('click', displayDetails);
-        listItem.addEventListener('click', () => {
-            populateList(projectKey);
-        });
+
+            let priorityButtons = document.getElementsByClassName('priorityButton');
+            for (let i = 0; i < priorityButtons.length; i++) {
+                priorityButtons[i].addEventListener('click', () => {
+                    element.priority = document.querySelector('input[name="priority"]:checked').value;
+                    console.log(element);
+                    saveProjectList();
+                });
+
+            };
+
+            listItem.addEventListener('click', (e) => {
+                if (listItem !== e.target)
+                    return;
+                populateList(projectKey);
+            });
+        };
+
+        listItem.addEventListener('click',(e) => {
+            if (listItem !== e.target && itemText !== e.target) return;
+
+            displayDetails();
         });
         
     });
@@ -133,8 +203,53 @@ let populateList = function populateList (projectKey) {
     });
 };
 
+let createPriorityChoice = function createPriorityChoice(parent) {
+    let priorityForm = document.createElement('form');
+    priorityForm.id = 'priorityForm';
+        let priorityFormLabel = document.createElement('label');
+        priorityFormLabel.for = 'priorityForm';
+        priorityFormLabel.innerHTML = 'Priority:'
+        priorityForm.appendChild(priorityFormLabel);
+        let priorityButton1 = document.createElement('input');
+        priorityButton1.type = 'radio';
+        priorityButton1.name = 'priority';
+        priorityButton1.id = '1';
+        priorityButton1.classList.add('priorityButton');
+        priorityButton1.value = '1';
+        let priorityLabel1 = document.createElement('label');
+        priorityLabel1.for = '1';
+        priorityLabel1.innerHTML = '1';
+        priorityForm.appendChild(priorityButton1);
+        priorityForm.appendChild(priorityLabel1);
+        let priorityButton2 = document.createElement('input');
+        priorityButton2.type = 'radio';
+        priorityButton2.name = 'priority';
+        priorityButton2.id = '2';
+        priorityButton2.classList.add('priorityButton');
+        priorityButton2.value = '2';
+        let priorityLabel2 = document.createElement('label');
+        priorityLabel2.for = '2';
+        priorityLabel2.innerHTML = '2';
+        priorityForm.appendChild(priorityButton2);
+        priorityForm.appendChild(priorityLabel2);
+        let priorityButton3 = document.createElement('input');
+        priorityButton3.type = 'radio';
+        priorityButton3.name = 'priority';
+        priorityButton3.id = '3';
+        priorityButton3.classList.add('priorityButton');
+        priorityButton3.value = '3';
+        let priorityLabel3 = document.createElement('label');
+        priorityLabel3.for = '3';
+        priorityLabel3.innerHTML = '3';
+        priorityForm.appendChild(priorityButton3);
+        priorityForm.appendChild(priorityLabel3);
+
+    parent.appendChild(priorityForm);
+    }
+
 let newTodo = function newTodo() {
-    listContainer.removeChild(document.getElementById('newItemBtn'));
+    let newItemBtn = document.getElementById('newItemBtn');
+    listContainer.removeChild(newItemBtn);
 
     let todoForm = document.createElement('div');
     todoForm.id = 'todoForm';
@@ -155,43 +270,8 @@ let newTodo = function newTodo() {
     yearField.placeholder = 'Year';
     todoForm.appendChild(yearField);
 
-    let priorityForm = document.createElement('form');
-    priorityForm.id = 'priorityForm';
-        let priorityFormLabel = document.createElement('label');
-        priorityFormLabel.for = 'priorityForm';
-        priorityFormLabel.innerHTML = 'Priority:'
-        priorityForm.appendChild(priorityFormLabel);
-        let priorityButton1 = document.createElement('input');
-        priorityButton1.type = 'radio';
-        priorityButton1.name = 'priority';
-        priorityButton1.id = '1';
-        priorityButton1.value = '1';
-        let priorityLabel1 = document.createElement('label');
-        priorityLabel1.for = '1';
-        priorityLabel1.innerHTML = '1';
-        priorityForm.appendChild(priorityButton1);
-        priorityForm.appendChild(priorityLabel1);
-        let priorityButton2 = document.createElement('input');
-        priorityButton2.type = 'radio';
-        priorityButton2.name = 'priority';
-        priorityButton2.id = '2';
-        priorityButton2.value = '2';
-        let priorityLabel2 = document.createElement('label');
-        priorityLabel2.for = '2';
-        priorityLabel2.innerHTML = '2';
-        priorityForm.appendChild(priorityButton2);
-        priorityForm.appendChild(priorityLabel2);
-        let priorityButton3 = document.createElement('input');
-        priorityButton3.type = 'radio';
-        priorityButton3.name = 'priority';
-        priorityButton3.id = '3';
-        priorityButton3.value = '3';
-        let priorityLabel3 = document.createElement('label');
-        priorityLabel3.for = '3';
-        priorityLabel3.innerHTML = '3';
-        priorityForm.appendChild(priorityButton3);
-        priorityForm.appendChild(priorityLabel3);
-    todoForm.appendChild(priorityForm);
+    createPriorityChoice(todoForm);
+
     listContainer.appendChild(todoForm);
 
     let newItemBtnF = document.createElement('button');
@@ -204,41 +284,51 @@ let newTodo = function newTodo() {
     createTodo(`${activeProjectName}`, false, titleField.value, descriptionField.value, dayField.value, monthField.value, yearField.value, document.querySelector('input[name="priority"]:checked').value);
     populateList(`${activeProjectName}`);
     });
+
+    todoForm.addEventListener('click', (e) => {
+        if (todoForm !== e.target) return;
+        populateList(`${activeProjectName}`);
+    });
     
 };
 
 let displayItemDetails = function displayItemDetails(DOMItem, fromItem) {
+    DOMItem.classList.add('details');
     DOMItem.innerHTML = '';
     let keyNames = Object.keys(fromItem);
-        
-    let itemCheck = document.createElement('p');
-    itemCheck.id = 'itemCheck';
-    itemCheck.attributeRef = keyNames[0];
-    itemCheck.innerHTML = `${fromItem.check}`;
-    DOMItem.appendChild(itemCheck);
 
     let itemTitle = document.createElement('p');
     itemTitle.id = 'itemTitle';
+    itemTitle.classList.add('itemDetail');
     itemTitle.attributeRef = keyNames[1];
     itemTitle.innerHTML = `${fromItem.title}`;
     DOMItem.appendChild(itemTitle);
 
     let itemDescription = document.createElement('p');
     itemDescription.id = 'itemDescription';
+    itemDescription.classList.add('itemDetail');
     itemDescription.attributeRef = keyNames[2];
     itemDescription.innerHTML = `${fromItem.description}`;
     DOMItem.appendChild(itemDescription);
 
     let itemDate = document.createElement('p');
     itemDate.id = 'itemDate';
+    itemDate.classList.add('itemDetail');
     itemDate.attributeRef = keyNames[3];
     itemDate.innerHTML = `${fromItem.dueDate}`;
     DOMItem.appendChild(itemDate);
 
-    let itemPriority = document.createElement('p');
-    itemPriority.id = 'itemPriority';
-    itemPriority.attributeRef = keyNames[4];
-    itemPriority.innerHTML = `${fromItem.priority}`;
-    DOMItem.appendChild(itemPriority);
+    createPriorityChoice(DOMItem);
+
+    let priority = fromItem.priority;
+    console.log(priority);
+
+    let priorityButtons = document.getElementsByClassName('priorityButton');
+    for (let i=0; i < priorityButtons.length; i++) {
+        if (priorityButtons[i].id == priority) {
+            priorityButtons[i].checked = true;
+        }
+    }
+    
 
 };

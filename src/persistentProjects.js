@@ -1,24 +1,22 @@
 // localStorage.setItem('myLibrary', JSON.stringify(myLibrary));
 // JSON.parse(localStorage.getItem('myLibrary')
 
-export {saveProject, loadProject, createProject, addToProject, projectList}
+export {createProject, saveProjectList, loadProjectList, projectList}
 
 let projectList = {};
 
 let createProject =  function createProject(projectName) {
     let name = projectName;
     projectList[name] = [];
+    saveProjectList();
 };
 
-let addToProject = function addToProject (projectName, todo) {
-    projectList[projectName].push(todo);
+const saveProjectList = function saveProjectList() {
+    localStorage.setItem('projectList', JSON.stringify(projectList));
+    console.log('ProjectList saved');
 };
 
-const saveProject = function saveProject(project) {
-    localStorage.setItem(`${projectName}`, JSON.stringify(project)); 
-};
-
-const loadProject = function loadProject(project) {
-    return JSON.parse(localStorage.getItem(`${projectName}`));
+const loadProjectList = function loadProjectList() {
+    projectList = JSON.parse(localStorage.getItem('projectList'));
 };
 

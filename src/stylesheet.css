@@ -26,4 +26,40 @@
 
 .listItem {
     border: 1px solid black;
+    display: flex;
+    align-items: center;
+}
+
+.itemCheck {
+    height: 10px;
+    width: 10px;
+    border: 1px solid black;
+}
+
+.itemText {
+    width: max-content;
+    border: 1px solid black;
+}
+
+.removeItemBtn {
+    height: max-content;
+    width: max-content;
+}
+
+.doneItem {
+    text-decoration: line-through;
+}
+
+.details {
+    display: block;
+}
+
+.itemDetail {
+    width: max-content;
+    border: 1px solid black;
+}
+
+#priorityForm {
+    width: max-content;
+    border: 1px solid black;
 }
