@@ -1,6 +1,3 @@
-// localStorage.setItem('myLibrary', JSON.stringify(myLibrary));
-// JSON.parse(localStorage.getItem('myLibrary')
-
 export {createProject, saveProjectList, loadProjectList, projectList}
 
 let projectList = {};

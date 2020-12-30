@@ -1,6 +1,6 @@
 import createTodo from './todoFactory';
-import {createProject, saveProjectList, loadProjectList, projectList} from './persistentProjects';
-import {newProject, createProjectTab, populateProjectBar, populateList, newTodo} from './domModification';
+import {createProject, saveProjectList, loadProjectList} from './persistentProjects';
+import {createProjectTab, populateProjectBar, populateList} from './domModification';
 export {init}
 
 

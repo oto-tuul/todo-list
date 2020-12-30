@@ -32,7 +32,7 @@ let createProjectTab = function createProjectTab(name) {
     projectTab.classList.add('projectTab');
     projectTab.id = name;
     let removeProjectBtn = document.createElement('button');
-    removeProjectBtn.innerHTML = 'x';
+    removeProjectBtn.innerHTML = 'X';
     removeProjectBtn.classList.add('removeProjectBtn');
     projectTab.appendChild(removeProjectBtn);
     projectBar.appendChild(projectTab);
@@ -68,6 +68,11 @@ let populateProjectBar = function populateProjectBar() {
         projectBar.removeChild(projectBar.firstChild);
     };
 
+    let projectBarTitle = document.createElement('p');
+    projectBarTitle.id = 'projectBarTitle';
+    projectBarTitle.innerHTML = 'Projects:';
+    projectBar.appendChild(projectBarTitle);
+
     Object.keys(projectList).forEach(element => {
         createProjectTab(`${element}`);
     });
@@ -87,6 +92,11 @@ let populateList = function populateList (projectKey) {
         listContainer.removeChild(listContainer.firstChild);
     };
 
+    let listContainerTitle = document.createElement('p');
+    listContainerTitle.id = 'listContainerTitle';
+    listContainerTitle.innerHTML = 'Tasks:';
+    listContainer.appendChild(listContainerTitle);
+
     projectList[projectKey].forEach(element => {
         let listItem = document.createElement('div');
         listItem.classList.add('listItem');
@@ -94,21 +104,23 @@ let populateList = function populateList (projectKey) {
         let itemCheck = document.createElement('p');
         itemCheck.classList.add('itemCheck');
         itemCheck.innerHTML = ' ';
-        if (element.check == true) {
-            itemCheck.innerHTML = '✓';
-            listItem.classList.add('doneItem');
-        };
         listItem.appendChild(itemCheck);
 
         let itemText = document.createElement('p');
         itemText.classList.add('itemText');
-        itemText.innerHTML = `${element.title} ${element.dueDate}`;
+        itemText.innerHTML = `${element.title}` + ' '.repeat(4) + `${element.dueDate}`;
         listItem.appendChild(itemText);
         listContainer.appendChild(listItem);
 
+        if (element.check == true) {
+            itemCheck.innerHTML = '✓';
+            itemText.classList.add('doneItem');
+        };
+        
+
         let removeItemBtn = document.createElement('button');
         removeItemBtn.classList.add('removeItemBtn');
-        removeItemBtn.innerHTML = 'x';
+        removeItemBtn.innerHTML = 'X';
         listItem.appendChild(removeItemBtn);
 
         itemCheck.addEventListener('click', () => {
@@ -117,13 +129,13 @@ let populateList = function populateList (projectKey) {
                 itemCheck.innerHTML = '✓';
                 console.log(element);
                 saveProjectList();
-                listItem.classList.add('doneItem');
+                itemText.classList.add('doneItem');
             } else {
                 element.check = false;
                 itemCheck.innerHTML = ' ';
                 console.log(element);
                 saveProjectList();
-                listItem.classList.remove('doneItem');
+                itemText.classList.remove('doneItem');
             }
         });
 
@@ -194,7 +206,7 @@ let populateList = function populateList (projectKey) {
     });
 
     let newItemBtn = document.createElement('button');
-    newItemBtn.innerHTML = '+ Add task';
+    newItemBtn.innerHTML = '+';
     newItemBtn.id = 'newItemBtn';
     listContainer.appendChild(newItemBtn);
 
