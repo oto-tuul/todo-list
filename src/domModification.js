@@ -1,4 +1,4 @@
-import {createProject, saveProjectList, projectList, loadProjectList} from './persistentProjects'
+import {createProject, deleteProject, saveProjectList, projectList, loadProjectList} from './persistentProjects'
 import createTodo from './todoFactory';
 export {newProject, createProjectTab,populateProjectBar, populateList, newTodo, displayItemDetails};
 
@@ -19,8 +19,13 @@ let newProject = function newProject() {
             let projectName = document.getElementById('projectForm').value;
             projectBar.removeChild(projectForm);
             createProject(projectName);
-            
-            createProjectTab(projectName);
+            populateProjectBar();
+        };
+    });
+
+    projectBar.addEventListener('click', (e) => {
+        if (e.target == projectBar) {
+            populateProjectBar();
         };
     });
 };
@@ -37,11 +42,6 @@ let createProjectTab = function createProjectTab(name) {
     projectTab.appendChild(removeProjectBtn);
     projectBar.appendChild(projectTab);
 
-    // let newProjectBtn = document.createElement('button');
-    // newProjectBtn.id = 'newProjectBtn';
-    // newProjectBtn.innerHTML = '+';
-    // projectBar.appendChild(newProjectBtn);
-
     activeProjectName = projectTab.id;
 
     projectTab.children[0].addEventListener('click', (event) => {
@@ -49,12 +49,9 @@ let createProjectTab = function createProjectTab(name) {
             listContainer.removeChild(listContainer.firstChild); 
         }
         projectBar.removeChild(projectTab);
+        deleteProject(projectTab.id);
         event.stopPropagation();
     });
-
-    // document.getElementById('newProjectBtn').addEventListener('click', () => {
-    //     newProject()
-    // });
 
     projectTab.addEventListener('click', () => {
         populateList(name);
@@ -85,6 +82,8 @@ let populateProjectBar = function populateProjectBar() {
     document.getElementById('newProjectBtn').addEventListener('click', () => {
         newProject()
     });
+
+    
 };
 
 let populateList = function populateList (projectKey) {
@@ -300,6 +299,12 @@ let newTodo = function newTodo() {
     todoForm.addEventListener('click', (e) => {
         if (todoForm !== e.target) return;
         populateList(`${activeProjectName}`);
+    });
+
+    listContainer.addEventListener('click', (e) => {
+        if (listContainer == e.target) {
+            populateList(`${activeProjectName}`);
+        };
     });
     
 };
